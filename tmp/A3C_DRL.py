@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 
 
 import tensorflow as tf
-from tensorflow.python import keras
-from tensorflow.python.keras import layers
+import keras
+from keras import layers
 
 tf.enable_eager_execution()
 
@@ -127,7 +127,7 @@ class RandomAgent:
 
 class MasterAgent():
   def __init__(self):
-    self.game_name = 'CartPole-v1'
+    self.game_name = 'CartPole-v0'
     save_dir = args.save_dir
     self.save_dir = save_dir
     if not os.path.exists(save_dir):
@@ -135,7 +135,7 @@ class MasterAgent():
 
     env = gym.make(self.game_name)
     self.state_size = env.observation_space.shape[0]
-    self.action_size = env.action_spaceDo 
+    self.action_size = env.action_space.n
     self.opt = tf.train.AdamOptimizer(args.lr, use_locking=True)
     print(self.state_size, self.action_size)
 
@@ -236,7 +236,7 @@ class Worker(threading.Thread):
                opt,
                result_queue,
                idx,
-               game_name='CartPole-v1',
+               game_name='CartPole-v0',
                save_dir='/tmp'):
     super(Worker, self).__init__()
     self.state_size = state_size
