@@ -24,8 +24,11 @@ env = gym.make(env_name)
 
 session = tf.Session()
 with tf.device("/cpu:0"):
+    print('ok0')
+
     model = A3C(env)  # we only need its params
     workers = []
+    print('ok')
     # Create worker
     for i in range(nb_workers):
         i_name = 'Worker_%i' % i   # worker name
