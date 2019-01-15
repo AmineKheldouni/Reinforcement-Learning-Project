@@ -77,20 +77,24 @@ class GridWorld:
             elif action == 3:
                 r = max(0, r - 1) if not failed else min(self.n_rows - 1, r + 1)
 
+            reward = 0.
+            absorb = False
             if self.grid[r][c] == 'x':
                 next_state = state
                 r, c = self.state2coord[next_state]
+                reward = -1
             elif action not in self.state_actions[state]:
                 next_state = state
                 r, c = self.state2coord[next_state]
+                reward = -1
             else:
                 next_state = self.coord2state[r, c]
             if isinstance(self.grid[r][c], numbers.Number):
                 reward = self.grid[r][c]
                 absorb = True
-            else:
-                reward = 0.
-                absorb = False
+#            else:
+#                reward = 0.
+#                absorb = False
 
         if self.render:
             self.show(state, action, next_state, reward)
