@@ -17,6 +17,7 @@ import time
 from A3C import *
 from worker import Worker
 
+t0 = time.time()
 nb_workers = multiprocessing.cpu_count()
 
 env_name = 'Pendulum-v0'
@@ -24,11 +25,8 @@ env = gym.make(env_name)
 
 session = tf.Session()
 with tf.device("/cpu:0"):
-    print('ok0')
-
     model = A3C(env)  # we only need its params
     workers = []
-    print('ok')
     # Create worker
     for i in range(nb_workers):
         i_name = 'Worker_%i' % i   # worker name
@@ -45,10 +43,13 @@ for worker in workers:
     worker_threads.append(t)
 coordinator.join(worker_threads)
 
-avg_moving_reward = workers[-1].moving_rewards
+print("Computational time: ",time.time()-t0)
+
+avg_moving_reward = workers[0].moving_rewards
 plt.plot(np.arange(len(avg_moving_reward)), avg_moving_reward)
 plt.xlabel('Step')
 plt.ylabel('Total moving reward')
+plt.savefig('A3C_moving_rwd')
 plt.show()
 
 

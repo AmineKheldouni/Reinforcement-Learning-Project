@@ -1,9 +1,8 @@
-import multiprocessing
-import threading
 import time
 
 from PPOKL import *
 
+t0 = time.time()
 env_name = 'Pendulum-v0'
 env = gym.make(env_name)
 tf.reset_default_graph() 
@@ -15,7 +14,11 @@ avg_moving_reward = model.moving_rewards
 plt.plot(np.arange(len(avg_moving_reward)), avg_moving_reward)
 plt.xlabel('Step')
 plt.ylabel('Total moving reward')
+plt.savefig('PPO_KL_moving_rwd')
 plt.show()
+
+
+print("Computational time: ",time.time()-t0)
 
 
 s = env.reset()

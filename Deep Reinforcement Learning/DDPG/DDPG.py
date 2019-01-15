@@ -19,7 +19,7 @@ class DDPG(object):
         self.critic_lr = 0.002
         self.gamma = 0.9
         self.update_iter = 32
-        self.max_episodes = 200
+        self.max_episodes = 2000
         self.max_steps = 200
         self.tau = 0.01
         self.moving_rewards = []
@@ -89,7 +89,7 @@ class DDPG(object):
             net = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
             return tf.layers.dense(net, 1, trainable=trainable)  # Q(s,a)
     
-    def work(self,render=True):
+    def work(self,render=False):
         var = 3  # control exploration. It will decrease along iterations.
         for i in range(self.max_episodes):
             s = self.env.reset()

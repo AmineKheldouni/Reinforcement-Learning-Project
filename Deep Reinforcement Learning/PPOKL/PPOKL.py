@@ -125,7 +125,6 @@ class PPOKL(object):
                     }
                     self.update(feed_dict, session)
                     buffer_s, buffer_a, buffer_r = [], [], []
-                    self.env.render()
                 s = s_next
                 total_step += 1                
                 if done:
