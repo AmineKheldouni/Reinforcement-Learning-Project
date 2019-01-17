@@ -11,8 +11,8 @@ class Worker(object):
 
         self.episode_count = 0
         self.max_episodes = 2000
-        self.max_steps = 200
-        self.update_iter = 10
+        self.max_steps = 500
+        self.update_iter = 32
         self.gamma = 0.9
 
     def work(self, session, coordinator):

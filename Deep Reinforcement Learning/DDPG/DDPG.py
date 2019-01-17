@@ -14,17 +14,17 @@ class DDPG(object):
         self.memory = np.zeros((self.memory_capacity, self.s_dim * 2 + self.a_dim + 1), dtype=np.float32)
         self.pointer = 0
         self.sess = tf.Session()
-        
+
         self.actor_lr = 0.001
         self.critic_lr = 0.002
         self.gamma = 0.9
         self.update_iter = 32
         self.max_episodes = 2000
-        self.max_steps = 200
+        self.max_steps = 500
         self.tau = 0.01
         self.moving_rewards = []
 
-        
+
         self.S = tf.placeholder(tf.float32, [None, self.s_dim], 's')
         self.S_ = tf.placeholder(tf.float32, [None, self.s_dim], 's_')
         self.R = tf.placeholder(tf.float32, [None, 1], 'r')
@@ -88,7 +88,7 @@ class DDPG(object):
             b1 = tf.get_variable('b1', [1, n_l1], trainable=trainable)
             net = tf.nn.relu(tf.matmul(s, w1_s) + tf.matmul(a, w1_a) + b1)
             return tf.layers.dense(net, 1, trainable=trainable)  # Q(s,a)
-    
+
     def work(self,render=False):
         var = 3  # control exploration. It will decrease along iterations.
         for i in range(self.max_episodes):
@@ -97,18 +97,18 @@ class DDPG(object):
             for j in range(self.max_steps):
                 if render:
                     self.env.render()
-        
+
                 # Add exploration noise
                 a = self.choose_action(s)
                 a = np.clip(np.random.normal(a, var), -2, 2)    # add randomness to action selection for exploration
                 s_, r, done, info = self.env.step(a)
-        
+
                 self.store_transition(s, a, r / 10, s_)
-        
+
                 if self.pointer > self.memory_capacity:
                     var *= .9995    # decay the action randomness
                     self.learn()
-        
+
                 s = s_
                 ep_reward += r
                 if j == self.max_steps-1:

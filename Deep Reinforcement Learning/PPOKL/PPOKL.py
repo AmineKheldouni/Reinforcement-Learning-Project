@@ -9,23 +9,23 @@ class PPOKL(object):
         self.state_shape = env.observation_space.shape[0]
         self.action_shape = env.action_space.shape[0]
         self.action_bounds = [env.action_space.low, env.action_space.high]
-        
+
         self.moving_rewards = []
 
         self.episode_count = 0
         self.max_episodes = 2000
-        self.max_steps = 200
-        self.update_iter = 10 #batch size
+        self.max_steps = 500
+        self.update_iter = 32 #batch size
         self.gamma = 0.9
-        
+
         self.actor_lr = 0.0001    # learning rate for actor
         self.critic_lr = 0.001    # learning rate for critic
-        
+
         self.kl_target = 0.003
         self.beta = 1
         self.beta_max = 20
         self.beta_min = 1/20
-        
+
         self.s = tf.placeholder(tf.float32, [None, self.state_shape], 'S')
 
         # critic
@@ -48,9 +48,9 @@ class PPOKL(object):
         ratio = pi.prob(self.a) / (oldpi.prob(self.a) + 1e-5)
 
         self.kl_divergence = tf.reduce_mean(tf.contrib.distributions.kl_divergence(pi, oldpi))
-    
 
-        self.aloss = -tf.reduce_mean(ratio * self.adv) 
+
+        self.aloss = -tf.reduce_mean(ratio * self.adv)
         self.aloss += self.beta * self.kl_divergence
 
         self.atrain_op = tf.train.AdamOptimizer(self.actor_lr).minimize(self.aloss)
@@ -70,7 +70,7 @@ class PPOKL(object):
             elif kl_divergence > self.kl_target * 1.5:
                 self.beta *= 2
             self.beta = np.clip(self.beta, self.beta_min, self.beta_max)
-            sess.run([self.update_oldpi_op]) 
+            sess.run([self.update_oldpi_op])
 
 
     def _build_net(self, name, trainable):
@@ -86,7 +86,7 @@ class PPOKL(object):
         s = s[np.newaxis, :]
         a = sess.run(self.sample_op, {self.s: s})[0]
         return np.clip(a, -2, 2)
-    
+
     def get_v(self, s, sess):
         s = s[np.newaxis, :]
         return sess.run(self.v, {self.s: s})[0, 0]
@@ -94,7 +94,7 @@ class PPOKL(object):
     def work(self, session):
         total_step = 1
         buffer_s, buffer_a, buffer_r = [], [], []
-        while self.episode_count < self.max_episodes:    
+        while self.episode_count < self.max_episodes:
             s = self.env.reset()
             ep_r = 0
             for ep_t in range(self.max_steps):
@@ -126,7 +126,7 @@ class PPOKL(object):
                     self.update(feed_dict, session)
                     buffer_s, buffer_a, buffer_r = [], [], []
                 s = s_next
-                total_step += 1                
+                total_step += 1
                 if done:
                     if len(self.moving_rewards) == 0:  # record running episode reward
                         self.moving_rewards.append(ep_r)
@@ -140,4 +140,3 @@ class PPOKL(object):
                               )
                     self.episode_count += 1
                     break
-

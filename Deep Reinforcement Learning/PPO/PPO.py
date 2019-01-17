@@ -9,19 +9,19 @@ class PPO(object):
         self.state_shape = env.observation_space.shape[0]
         self.action_shape = env.action_space.shape[0]
         self.action_bounds = [env.action_space.low, env.action_space.high]
-        
+
         self.moving_rewards = []
 
         self.episode_count = 0
         self.max_episodes = 2000
-        self.max_steps = 200
-        self.update_iter = 10 #batch size
+        self.max_steps = 500
+        self.update_iter = 32 #batch size
         self.gamma = 0.9
-        
+
         self.actor_lr = 0.0001    # learning rate for actor
         self.critic_lr = 0.001    # learning rate for critic
         self.epsilon = 0.2
-        
+
         self.s = tf.placeholder(tf.float32, [None, self.state_shape], 'S')
 
         # critic
@@ -75,7 +75,7 @@ class PPO(object):
         s = s[np.newaxis, :]
         a = sess.run(self.sample_op, {self.s: s})[0]
         return np.clip(a, -2, 2)
-    
+
     def get_v(self, s, sess):
         s = s[np.newaxis, :]
         return sess.run(self.v, {self.s: s})[0, 0]
@@ -83,7 +83,7 @@ class PPO(object):
     def work(self, session):
         total_step = 1
         buffer_s, buffer_a, buffer_r = [], [], []
-        while self.episode_count < self.max_episodes:    
+        while self.episode_count < self.max_episodes:
             s = self.env.reset()
             ep_r = 0
             for ep_t in range(self.max_steps):
@@ -116,7 +116,7 @@ class PPO(object):
                     buffer_s, buffer_a, buffer_r = [], [], []
 
                 s = s_next
-                total_step += 1                
+                total_step += 1
                 if done:
                     if len(self.moving_rewards) == 0:  # record running episode reward
                         self.moving_rewards.append(ep_r)
@@ -130,4 +130,3 @@ class PPO(object):
                               )
                     self.episode_count += 1
                     break
-
