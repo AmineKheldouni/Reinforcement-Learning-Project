@@ -13,7 +13,7 @@ class PPOKL(object):
         self.moving_rewards = []
 
         self.episode_count = 0
-        self.max_episodes = 2000
+        self.max_episodes = 2500
         self.max_steps = 500
         self.update_iter = 32 #batch size
         self.gamma = 0.9
