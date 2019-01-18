@@ -7,6 +7,8 @@ Created on Mon Jan 14 10:41:41 2019
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+
 from tqdm import tqdm
 import time
 import gym
@@ -28,7 +30,7 @@ class Policy(object):
         while (a < self.n_actions-1 and (u > probas[a] or self.pi[state,a]==0)):
             a += 1
         return a
-    
+
 
 class RLModel:
     def __init__(self, env):
@@ -39,10 +41,10 @@ class RLModel:
         self.vect_n_states = [0,(2*self.discrete_state+1),(2*self.discrete_state+1)*(16*self.discrete_state+1)]
         self.n_states = (2*self.discrete_state+1)*(2*self.discrete_state+1)*(16*self.discrete_state+1)
         self.ref = np.array([1,1,8])
-        
+
         self.moving_rewards = []
         self.episode_count = 0
-        
+
     def initialize_pi(self):
         pi = np.zeros((self.n_states,self.n_actions))
         for s in range(self.n_states):
@@ -51,11 +53,11 @@ class RLModel:
 
     def convert_state_to_int(self,notnormalize_next_state):
         next_state = 0
-                
+
         for i in range(len(notnormalize_next_state)):
             next_state += self.vect_n_states[i]+ int( (notnormalize_next_state[i]+self.ref[i]) /self.discrete_state)
         return(next_state)
-        
+
     def convert_int_to_action(self,action):
         return(-2+action/self.discrete_action)
 
@@ -68,7 +70,7 @@ class RLModel:
             rewards = []
             next_states = []
             ep_r = 0
-            
+
             notnorm_state = self.env.reset()
             state = self.convert_state_to_int(notnorm_state)
             for t in range(horizon):
@@ -217,7 +219,7 @@ class REPS(RLModel):
 
     def update(self):
         """Relative Entropy Policy Search using Mirror Descent"""
-        p = 3    
+        p = 3
         # initialization of the distribution
         pi = self.initialize_pi()
         policy = Policy(pi)
@@ -225,7 +227,7 @@ class REPS(RLModel):
         T = 100
         theta = [0 for i in range(p)]
         phi = self.compute_phi(p)
-        
+
         for k in tqdm(range(self.K), desc="Iterating REPS algorithm..."):
             ##### SAMPLING
             samples = self.collect_episodes(policy=policy,horizon=T,n_episodes=self.N)
@@ -234,12 +236,12 @@ class REPS(RLModel):
             theta = opt.fmin_bfgs(self.g,x0=theta,fprime=self.Dg,args=(self.eta,phi,samples), disp=0)
 
             #### COMPUTE THE NEW POLICY
-            policy = self.compute_new_policy(self.eta,policy,phi,theta,samples) 
-            
+            policy = self.compute_new_policy(self.eta,policy,phi,theta,samples)
+
         self.policy = policy
         self.theta = theta
         self.phi = phi
-        
+
 env_name = 'Pendulum-v0'
 env = gym.make(env_name)
 REPS_model = REPS(env)

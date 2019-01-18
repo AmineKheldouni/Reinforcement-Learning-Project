@@ -1,12 +1,13 @@
 import time
 import gym
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 from DDPG import *
 
 t0 = time.time()
 env_name = 'Pendulum-v0'
 env = gym.make(env_name)
-tf.reset_default_graph() 
+tf.reset_default_graph()
 session = tf.Session()
 model = DDPG(env, session)
 model.work()

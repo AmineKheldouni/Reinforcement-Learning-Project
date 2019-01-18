@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 import gym
 
 class PPO(object):

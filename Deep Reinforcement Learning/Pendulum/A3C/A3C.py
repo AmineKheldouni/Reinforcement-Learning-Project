@@ -4,6 +4,8 @@ import numpy as np
 import gym
 import os
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+
 
 class A3C(object):
     def __init__(self, env, scope='GlobalNet', a3c_model=None):
